@@ -10,6 +10,8 @@ import optparse
 import os
 import sys
 import warnings
+import os.path
+import docx
 
 __author__ = '$USER'
 __version__="0.0"
@@ -26,7 +28,25 @@ def main(*argv):
     options, script, args, help = get_options(argv)
     init_logger(options.verbosity)
 
-    # Code here...
+    corpus = ''
+    for arg in args:
+        ext = os.path.splitext(arg)[-1]
+        corpus += extract_functions.get(ext, unknown_extension)(arg)
+
+    print corpus
+
+def extract_docx(filename):
+    logger.info("Adding %s", filename)
+    document = docx.Document(filename)
+    return " ".join(paragraph.text for paragraph in document.paragraphs)
+
+def unknown_extension(filename):
+    logger.warn("Unknown file type %s", filename)
+    return ""
+
+extract_functions = {
+    ".docx": extract_docx
+}
 
 def get_options(argv):
     '''Get options and arguments from argv string.'''
