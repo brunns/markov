@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Docstring...
+Generate Markov given set of files
 """
 import codecs
 import locale
@@ -12,14 +12,16 @@ import sys
 import warnings
 import os.path
 import docx
+import pymarkovchain
+import tempfile
 
-__author__ = '$USER'
-__version__="0.0"
+__author__ = 'Simon Brunning'
+__version__="0.1"
 
 script_name = os.path.basename(sys.argv[0])
 usage = script_name + ' [options] args'
 description = '''
-Description of script...
+Generate Markov given set of files.
 '''
 
 logger = logging.getLogger(script_name)
@@ -33,7 +35,9 @@ def main(*argv):
         ext = os.path.splitext(arg)[-1]
         corpus += extract_functions.get(ext, unknown_extension)(arg)
 
-    print corpus
+    markov = pymarkovchain.MarkovChain(tempfile.NamedTemporaryFile().name())
+    markov.generateDatabase(corpus)
+    print markov.generateString()
 
 def extract_docx(filename):
     logger.info("Adding %s", filename)
