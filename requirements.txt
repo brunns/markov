@@ -1,0 +1,4 @@
+lxml==3.4.4
+pdfminer==20140328
+PyMarkovChain==1.7.5
+python-docx==0.8.5
