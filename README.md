@@ -28,3 +28,11 @@ If this command gives you a version number, you are good to go:
 
     $ ./markov.py -v ~/my-documents/*
     $ ./markov.py -h # for help
+
+## Development notes
+
+### Updating dependencies
+
+If you add or remove any dependencies using [PIP](https://pip.pypa.io/en/stable/) please update the requirements before pushing.
+
+    $ pip freeze > requirements.txt
