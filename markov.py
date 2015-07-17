@@ -14,6 +14,7 @@ import os.path
 import docx
 import markovify
 import pyPdf
+import html2text
 
 __author__ = 'Simon Brunning'
 __version__ = "0.1"
@@ -55,6 +56,18 @@ def extract_pdf(filename):
     return " ".join(page.extractText() for page in pdf.pages)
 
 
+def extract_html(filename):
+    logger.info("Adding contents of %s", filename)
+    with open(filename) as html:
+        return html2text.html2text(html.read())
+
+
+def extract_txt(filename):
+    logger.info("Adding contents of %s", filename)
+    with open(filename) as f:
+        return f.read()
+
+
 def unknown_extension(filename):
     logger.warn("Unknown file type %s", filename)
     return ""
@@ -63,6 +76,9 @@ def unknown_extension(filename):
 extract_functions = {
     ".docx": extract_docx,
     ".pdf": extract_pdf,
+    ".html": extract_html,
+    ".txt": extract_txt,
+    ".md": extract_txt,
 }
 
 
