@@ -15,6 +15,7 @@ import docx
 import markovify
 import pyPdf
 import html2text
+import pptx
 
 __author__ = 'Simon Brunning'
 __version__ = "0.1"
@@ -50,6 +51,26 @@ def extract_docx(filename):
     return " ".join(paragraph.text for paragraph in document.paragraphs)
 
 
+def extract_pptx(filename):
+    """From http://python-pptx.readthedocs.org/en/latest/user/quickstart.html#extract-all-text-from-slides-in-presentation"""
+    logger.info("Adding contents of %s", filename)
+
+    prs = pptx.Presentation(filename)
+
+    # text_runs will be populated with a list of strings,
+    # one for each text run in presentation
+    text_runs = []
+
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if not shape.has_text_frame:
+                continue
+            for paragraph in shape.text_frame.paragraphs:
+                for run in paragraph.runs:
+                    text_runs.append(run.text)
+    return " ".join(text_runs)
+
+
 def extract_pdf(filename):
     logger.info("Adding contents of %s", filename)
     pdf = pyPdf.PdfFileReader(open(filename, "rb"))
@@ -75,6 +96,7 @@ def unknown_extension(filename):
 
 extract_functions = {
     ".docx": extract_docx,
+    ".pptx": extract_pptx,
     ".pdf": extract_pdf,
     ".html": extract_html,
     ".txt": extract_txt,
@@ -90,8 +112,6 @@ def get_options(argv):
                       help="Specify up to three times to increase verbosity, i.e. -v to see warnings, "
                            "-vv for information messages, or -vvv for debug messages.")
     parser.add_option("-l", "--length", type="int", help="Length (in sentences.)", default=5)
-
-    # Script options here...
 
     options, args = parser.parse_args(list(argv))
     script, args = args[0], args[1:]
