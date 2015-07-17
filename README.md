@@ -28,4 +28,3 @@ If this command gives you a version number, you are good to go:
 
     $ ./markov.py -v ~/my-documents/*
     $ ./markov.py -h # for help
-    

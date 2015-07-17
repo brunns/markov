@@ -19,7 +19,7 @@ __author__ = 'Simon Brunning'
 __version__ = "0.1"
 
 script_name = os.path.basename(sys.argv[0])
-usage = script_name + ' [options] args'
+usage = script_name + ' [options] source-files'
 description = '''
 Generate Markov chain given set of files.
 '''
