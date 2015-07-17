@@ -13,6 +13,7 @@ import warnings
 import os.path
 import docx
 import markovify
+import pyPdf
 
 __author__ = 'Simon Brunning'
 __version__ = "0.1"
@@ -48,13 +49,20 @@ def extract_docx(filename):
     return " ".join(paragraph.text for paragraph in document.paragraphs)
 
 
+def extract_pdf(filename):
+    logger.info("Adding contents of %s", filename)
+    pdf = pyPdf.PdfFileReader(open(filename, "rb"))
+    return " ".join(page.extractText() for page in pdf.pages)
+
+
 def unknown_extension(filename):
     logger.warn("Unknown file type %s", filename)
     return ""
 
 
 extract_functions = {
-    ".docx": extract_docx
+    ".docx": extract_docx,
+    ".pdf": extract_pdf,
 }
 
 
