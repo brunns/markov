@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Generate Markov given set of files
+Generate Markov chain given set of files.
 """
 import codecs
 import locale
@@ -21,7 +21,7 @@ __version__ = "0.1"
 script_name = os.path.basename(sys.argv[0])
 usage = script_name + ' [options] args'
 description = '''
-Generate Markov given set of files.
+Generate Markov chain given set of files.
 '''
 
 logger = logging.getLogger(script_name)
