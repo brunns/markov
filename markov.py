@@ -36,7 +36,8 @@ def main(*argv):
     corpus = ''
     for arg in args:
         ext = os.path.splitext(arg)[-1]
-        corpus += extract_functions.get(ext, unknown_extension)(arg)
+        strategy = extract_strategies.get(ext, UnknownFiletypeStrategy)
+        corpus += strategy(arg).extract()
 
     text_model = markovify.Text(corpus)
 
@@ -45,62 +46,74 @@ def main(*argv):
         print(text_model.make_sentence())
 
 
-def extract_docx(filename):
-    logger.info("Adding contents of %s", filename)
-    document = docx.Document(filename)
-    return " ".join(paragraph.text for paragraph in document.paragraphs)
+class ExtractStrategy(object):
+    def __init__(self, filename):
+        self.filename = filename
+        logger.info("Adding contents of %s", filename)
+
+    def extract(self):
+        raise NotImplementedError()
 
 
-def extract_pptx(filename):
-    """From http://python-pptx.readthedocs.org/en/latest/user/quickstart.html#extract-all-text-from-slides-in-presentation"""
-    logger.info("Adding contents of %s", filename)
-
-    prs = pptx.Presentation(filename)
-
-    # text_runs will be populated with a list of strings,
-    # one for each text run in presentation
-    text_runs = []
-
-    for slide in prs.slides:
-        for shape in slide.shapes:
-            if not shape.has_text_frame:
-                continue
-            for paragraph in shape.text_frame.paragraphs:
-                for run in paragraph.runs:
-                    text_runs.append(run.text)
-    return " ".join(text_runs)
+class DocxStrategy(ExtractStrategy):
+    def extract(self):
+        document = docx.Document(self.filename)
+        return " ".join(paragraph.text for paragraph in document.paragraphs)
 
 
-def extract_pdf(filename):
-    logger.info("Adding contents of %s", filename)
-    pdf = pyPdf.PdfFileReader(open(filename, "rb"))
-    return " ".join(page.extractText() for page in pdf.pages)
+class PptxStrategy(ExtractStrategy):
+    def extract(self):
+        """From http://python-pptx.readthedocs.org/en/latest/user/quickstart.html#extract-all-text-from-slides-in-presentation"""
+
+        prs = pptx.Presentation(self.filename)
+
+        # text_runs will be populated with a list of strings,
+        # one for each text run in presentation
+        text_runs = []
+
+        for slide in prs.slides:
+            for shape in slide.shapes:
+                if not shape.has_text_frame:
+                    continue
+                for paragraph in shape.text_frame.paragraphs:
+                    for run in paragraph.runs:
+                        text_runs.append(run.text)
+        return " ".join(text_runs)
 
 
-def extract_html(filename):
-    logger.info("Adding contents of %s", filename)
-    with open(filename) as html:
-        return html2text.html2text(html.read())
+class PdfStrategy(ExtractStrategy):
+    def extract(self):
+        pdf = pyPdf.PdfFileReader(open(self.filename, "rb"))
+        return " ".join(page.extractText() for page in pdf.pages)
 
 
-def extract_txt(filename):
-    logger.info("Adding contents of %s", filename)
-    with open(filename) as f:
-        return f.read()
+class HtmlStrategy(ExtractStrategy):
+    def extract(self):
+        with open(self.filename) as html:
+            return html2text.html2text(html.read())
 
 
-def unknown_extension(filename):
-    logger.warn("Unknown file type %s", filename)
-    return ""
+class TxtStrategy(ExtractStrategy):
+    def extract(self):
+        with open(self.filename) as f:
+            return f.read()
 
 
-extract_functions = {
-    ".docx": extract_docx,
-    ".pptx": extract_pptx,
-    ".pdf": extract_pdf,
-    ".html": extract_html,
-    ".txt": extract_txt,
-    ".md": extract_txt,
+class UnknownFiletypeStrategy(ExtractStrategy):
+    def __init__(self, filename):
+        logger.warn("Unknown file type %s", filename)
+
+    def extract(self):
+        return ""
+
+
+extract_strategies = {
+    ".docx": DocxStrategy,
+    ".pptx": PptxStrategy,
+    ".pdf": PdfStrategy,
+    ".html": HtmlStrategy,
+    ".txt": TxtStrategy,
+    ".md": TxtStrategy,
 }
 
 
