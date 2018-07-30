@@ -1,7 +1,7 @@
 html2text==2015.6.21
 lxml==3.4.4
 markovify==0.0.0
-Pillow==2.9.0
+Pillow~=3.1
 pyPdf==1.13
 python-docx==0.8.5
 python-pptx==0.5.7
