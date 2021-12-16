@@ -1,5 +1,5 @@
 html2text==2015.6.21
-lxml~=3.4
+lxml~=4.6
 markovify~=0.7
 pyPdf~=1.13
 python-docx~=0.8
